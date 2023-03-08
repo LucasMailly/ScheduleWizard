@@ -18,6 +18,9 @@
         <activity android:name=".ScheduleActivity"
             android:exported="false" />
         <activity
+            android:name=".InformationCourse"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
