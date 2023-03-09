@@ -54,27 +54,17 @@ public class StartActivity extends AppCompatActivity {
 
         // Set up the input
         final EditText input = new EditText(this);
-        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
         builder.setView(input);
 
         // Set up the buttons
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                //pass url to ScheduleActivity without allowing user to return to StartActivity
-                Intent intent = new Intent(StartActivity.this, ScheduleActivity.class);
-                intent.putExtra("url", input.getText().toString());
-                startActivity(intent);
-                finish();
-            }
+        builder.setPositiveButton("OK", (dialog, which) -> {
+            Intent intent = new Intent(StartActivity.this, ScheduleActivity.class);
+            intent.putExtra("url", input.getText().toString());
+            startActivity(intent);
+            finish();
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
 
         builder.show();
 

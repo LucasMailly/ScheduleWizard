@@ -5,6 +5,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -57,24 +58,26 @@ public class ScheduleActivity extends AppCompatActivity {
     }
 
     public void sync() {
-        Toast.makeText(this, "Syncing...", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Syncing... ", Toast.LENGTH_SHORT).show();
         Thread thread = new Thread(() -> {
             try {
                 URL url = new URL(ScheduleActivity.this.url);
+                //Download the ics file
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
+                connection.setDoInput(true);
                 connection.connect();
-                BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                String inputLine;
-                StringBuffer content = new StringBuffer();
-                while ((inputLine = in.readLine()) != null) {
-                    content.append(inputLine);
+                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                StringBuilder builder = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    builder.append(line);
                 }
-                in.close();
-                connection.disconnect();
-                System.out.println(content.toString());
+                Log.d("ScheduleActivity", builder.toString());
+
+
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e("ScheduleActivity", e.getMessage());
             }
         });
 
