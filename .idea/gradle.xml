@@ -9,8 +9,8 @@
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="modules">
           <set>
-            <option value="/media/data/Dropbox/COURS/ANNEE_3/Semestre 2/mobile/ScheduleWizard" />
-            <option value="/media/data/Dropbox/COURS/ANNEE_3/Semestre 2/mobile/ScheduleWizard/app" />
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/app" />
           </set>
         </option>
       </GradleProjectSettings>
