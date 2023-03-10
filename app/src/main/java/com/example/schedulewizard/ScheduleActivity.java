@@ -70,10 +70,16 @@ public class ScheduleActivity extends AppCompatActivity {
             try {
                 URL url = new URL(intent.getStringExtra("url"));
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                //Check that the response is a calendar file
+                if (!urlConnection.getContentType().equals("text/calendar")) {
+                    // Show error message and return to StartActivity
+                    Log.d("ScheduleActivity", url.toString());
+                    runOnUiThread(() -> Toast.makeText(this, "Calendrier invalide", Toast.LENGTH_SHORT).show());
+                    return;
+                }
                 try {
                     InputStream in = new BufferedInputStream(urlConnection.getInputStream());
                     BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-                    // Add each line to icsFile conserving line breaks
                     StringBuilder result = new StringBuilder();
                     String line;
                     while ((line = reader.readLine()) != null) {

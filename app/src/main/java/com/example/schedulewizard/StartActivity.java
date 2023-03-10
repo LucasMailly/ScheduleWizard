@@ -37,6 +37,7 @@ public class StartActivity extends AppCompatActivity {
     public void scanQrCode(View view) {
         ScanOptions options = new ScanOptions();
         options.setPrompt("Volume up to flash on");
+        options.setBeepEnabled(false);
         options.setOrientationLocked(true);
         options.setCaptureActivity(CaptureAct.class);
         barLauncher.launch(options);
