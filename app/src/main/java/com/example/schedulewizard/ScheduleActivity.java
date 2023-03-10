@@ -3,8 +3,17 @@ package com.example.schedulewizard;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -16,8 +25,6 @@ import java.net.URL;
 
 public class ScheduleActivity extends AppCompatActivity {
 
-    private String url;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,8 +34,6 @@ public class ScheduleActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        Intent intent = getIntent();
-        url = intent.getStringExtra("url");
         sync();
     }
 
@@ -57,24 +62,36 @@ public class ScheduleActivity extends AppCompatActivity {
     }
 
     public void sync() {
-        Toast.makeText(this, "Syncing...", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Syncing... ", Toast.LENGTH_SHORT).show();
         Thread thread = new Thread(() -> {
+            Intent intent = getIntent();
+            String icsFile;
+
             try {
-                URL url = new URL(ScheduleActivity.this.url);
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-                connection.connect();
-                BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                String inputLine;
-                StringBuffer content = new StringBuffer();
-                while ((inputLine = in.readLine()) != null) {
-                    content.append(inputLine);
+                URL url = new URL(intent.getStringExtra("url"));
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                //Check that the response is a calendar file
+                if (!urlConnection.getContentType().equals("text/calendar")) {
+                    // Show error message and return to StartActivity
+                    Log.d("ScheduleActivity", url.toString());
+                    runOnUiThread(() -> Toast.makeText(this, "Calendrier invalide", Toast.LENGTH_SHORT).show());
+                    return;
                 }
-                in.close();
-                connection.disconnect();
-                System.out.println(content.toString());
+                try {
+                    InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                    StringBuilder result = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        result.append(line).append("\n");
+                    }
+                    icsFile = result.toString();
+                    Log.d("ScheduleActivity", icsFile);
+                } finally {
+                    urlConnection.disconnect();
+                }
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e("ScheduleActivity", e.getMessage());
             }
         });
 
