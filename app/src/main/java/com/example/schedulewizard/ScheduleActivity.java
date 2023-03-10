@@ -3,6 +3,14 @@ package com.example.schedulewizard;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,8 +25,6 @@ import java.net.URL;
 
 public class ScheduleActivity extends AppCompatActivity {
 
-    private String url;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,8 +34,6 @@ public class ScheduleActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        Intent intent = getIntent();
-        url = intent.getStringExtra("url");
         sync();
     }
 
@@ -60,22 +64,26 @@ public class ScheduleActivity extends AppCompatActivity {
     public void sync() {
         Toast.makeText(this, "Syncing... ", Toast.LENGTH_SHORT).show();
         Thread thread = new Thread(() -> {
+            Intent intent = getIntent();
+            String icsFile;
+
             try {
-                URL url = new URL(ScheduleActivity.this.url);
-                //Download the ics file
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-                connection.setDoInput(true);
-                connection.connect();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                StringBuilder builder = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    builder.append(line);
+                URL url = new URL(intent.getStringExtra("url"));
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                try {
+                    InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                    // Add each line to icsFile conserving line breaks
+                    StringBuilder result = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        result.append(line).append("\n");
+                    }
+                    icsFile = result.toString();
+                    Log.d("ScheduleActivity", icsFile);
+                } finally {
+                    urlConnection.disconnect();
                 }
-                Log.d("ScheduleActivity", builder.toString());
-
-
             } catch (IOException e) {
                 Log.e("ScheduleActivity", e.getMessage());
             }

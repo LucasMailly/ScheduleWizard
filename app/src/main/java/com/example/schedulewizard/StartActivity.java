@@ -9,12 +9,16 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 
 public class StartActivity extends AppCompatActivity {
 
@@ -42,7 +46,9 @@ public class StartActivity extends AppCompatActivity {
         if (result.getContents() != null) {
             //pass url to ScheduleActivity without allowing user to return to StartActivity
             Intent intent = new Intent(this, ScheduleActivity.class);
-            intent.putExtra("url", result.getContents());
+            String url = result.getContents();
+            url = url.replace("http://", "https://");
+            intent.putExtra("url", url);
             startActivity(intent);
             finish();
         }
@@ -52,15 +58,15 @@ public class StartActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Entrer l'URL :");
 
-        // Set up the input
         final EditText input = new EditText(this);
         input.setInputType(InputType.TYPE_CLASS_TEXT);
         builder.setView(input);
 
-        // Set up the buttons
         builder.setPositiveButton("OK", (dialog, which) -> {
             Intent intent = new Intent(StartActivity.this, ScheduleActivity.class);
-            intent.putExtra("url", input.getText().toString());
+            String url = input.getText().toString();
+            url = url.replace("http://", "https://");
+            intent.putExtra("url", url);
             startActivity(intent);
             finish();
         });
