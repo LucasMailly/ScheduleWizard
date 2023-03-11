@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
@@ -46,9 +47,16 @@ public class StartActivity extends AppCompatActivity {
     ActivityResultLauncher<ScanOptions> barLauncher = registerForActivityResult(new ScanContract(), result -> {
         if (result.getContents() != null) {
             //pass url to ScheduleActivity without allowing user to return to StartActivity
-            Intent intent = new Intent(this, ScheduleActivity.class);
             String url = result.getContents();
             url = url.replace("http://", "https://");
+            try {
+                new URL(url);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "URL invalide", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            Intent intent = new Intent(this, ScheduleActivity.class);
             intent.putExtra("url", url);
             startActivity(intent);
             finish();
@@ -64,9 +72,16 @@ public class StartActivity extends AppCompatActivity {
         builder.setView(input);
 
         builder.setPositiveButton("OK", (dialog, which) -> {
-            Intent intent = new Intent(StartActivity.this, ScheduleActivity.class);
             String url = input.getText().toString();
             url = url.replace("http://", "https://");
+            try {
+                new URL(url);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "URL invalide", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            Intent intent = new Intent(StartActivity.this, ScheduleActivity.class);
             intent.putExtra("url", url);
             startActivity(intent);
             finish();
