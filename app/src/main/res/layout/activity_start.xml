@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorOnPrimary"
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:text="Connectez votre emploi du temps"
+        android:layout_marginTop="100dp"
+        android:layout_marginBottom="40dp"
+        android:textSize="40sp" />
+
+    <Button
+        android:id="@+id/buttonQrCode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Scanner QR code"
+        android:textColor="@color/white"
+        android:layout_gravity="center"
+        android:paddingVertical="15dp"
+        android:layout_marginBottom="15dp"
+        android:onClick="scanQrCode"/>
+
+    <Button
+        android:id="@+id/buttonManual"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Entrer manuellement"
+        android:textColor="@color/white"
+        android:layout_gravity="center"
+        android:paddingVertical="15dp"
+        android:textSize="20sp"
+        android:onClick="enterUrl"/>
+
+</LinearLayout>
