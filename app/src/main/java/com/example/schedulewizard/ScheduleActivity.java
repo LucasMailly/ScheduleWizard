@@ -3,8 +3,10 @@ package com.example.schedulewizard;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -43,7 +45,8 @@ import net.fortuna.ical4j.model.component.CalendarComponent;
 
 public class ScheduleActivity extends AppCompatActivity {
 
-    LinearLayout eventListView;
+    private LinearLayout eventListView;
+    private SharedPreferences.Editor editor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +56,11 @@ public class ScheduleActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        SharedPreferences sharedPref = getSharedPreferences(String.valueOf(R.string.preference_file_key), Context.MODE_PRIVATE);
+        editor = sharedPref.edit();
+        editor.putBoolean("firstTime", false);
+        editor.putBoolean("returnAllowed", false);
 
         eventListView = findViewById(R.id.eventListView);
 
@@ -88,6 +96,15 @@ public class ScheduleActivity extends AppCompatActivity {
         return new Date(date.getTime() + tz.getRawOffset());
     }
 
+    private void renewUrl(Boolean returnAllowed) {
+        editor.putBoolean("firstTime", true);
+        editor.putBoolean("returnAllowed", returnAllowed);
+        editor.apply();
+
+        Intent intent = new Intent(this, StartActivity.class);
+        startActivity(intent);
+    }
+
     public void sync() {
         Intent intent = getIntent();
 
@@ -96,12 +113,16 @@ public class ScheduleActivity extends AppCompatActivity {
                 URL url = new URL(intent.getStringExtra("url"));
                 URLConnection urlConnection = url.openConnection();
                 InputStream ical = new BufferedInputStream(urlConnection.getInputStream());
-                CalendarBuilder builder = new CalendarBuilder();
-                Calendar calendar = builder.build(ical);
-                intent.putExtra("calendar", calendar);
-            } catch (IOException | ParserException e) {
-                Log.e("ScheduleActivity", e.getMessage());
-                startActivity(new Intent(ScheduleActivity.this, StartActivity.class));
+                if (!urlConnection.getContentType().contains("text/calendar")) {
+                    intent.removeExtra("calendar");
+                } else {
+                    CalendarBuilder builder = new CalendarBuilder();
+                    Calendar calendar = builder.build(ical);
+                    intent.putExtra("calendar", calendar);
+                }
+            } catch (Exception e) {
+                Log.e("ScheduleWizard", e.getMessage());
+                renewUrl(false);
             }
         });
 
@@ -113,6 +134,13 @@ public class ScheduleActivity extends AppCompatActivity {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        if (intent.getSerializableExtra("calendar") == null) {
+            Toast.makeText(this, "The URL you entered does not contain a valid calendar file.", Toast.LENGTH_LONG).show();
+            renewUrl(false);
+            return;
+        }
+
         Calendar calendar = (Calendar) intent.getSerializableExtra("calendar");
 
         //order events by date
@@ -126,7 +154,7 @@ public class ScheduleActivity extends AppCompatActivity {
                 Date start2 = format.parse(startDate2);
                 return start1.compareTo(start2);
             } catch (Exception e) {
-                Log.e("ScheduleActivity", e.getMessage());
+                Log.e("ScheduleWizard", e.getMessage());
                 return 0;
             }
         });
@@ -191,7 +219,7 @@ public class ScheduleActivity extends AppCompatActivity {
                 eventListView.addView(eventView);
 
             } catch (Exception e) {
-                Log.e("ScheduleActivity", e.getMessage());
+                Log.e("ScheduleWizard", e.getMessage());
             }
 
 

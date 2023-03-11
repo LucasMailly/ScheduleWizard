@@ -30,4 +30,5 @@
     <string name="checkListText">Checklist</string>
     <string name="teacher">Billaut Jean-Charles</string>
     <string name="room">GR E1 2090</string>
+    <string name="preference_file_key">config</string>
 </resources>
